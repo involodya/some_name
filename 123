@@ -6,18 +6,6 @@
 
 using namespace std;
 
-const long double PI = acos(-1);
-
-long double degrees_into_radian(long double degrees)
-{
-	return degrees / 180 * PI;
-}
-
-long double radian_into_degrees(long double radian)
-{
-	return radian * 180 / PI;
-}
-
 struct Point
 {
 	long double x;
@@ -202,7 +190,7 @@ int main()
 				continue;
 			}	
 
-			if (dp[j] + path.length2 <= dp[i])
+			if (dp[j] + path.length2 < dp[i])
 			{
 				dp[i] = dp[j] + path.length2;
 				parents[i] = j;
@@ -217,8 +205,8 @@ int main()
 		k = parents[k];
 		counter++;
 	}
-
-	cout << dp[n - 1] << ' ' << counter;
+	
+	cout << (long long)dp[n - 1] << ' ' << counter;
 
 
 }
