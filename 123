@@ -1,0 +1,224 @@
+#include<iostream>
+#include<math.h>
+#include <iomanip>
+#include<vector>
+#include <algorithm> 
+
+using namespace std;
+
+const long double PI = acos(-1);
+
+long double degrees_into_radian(long double degrees)
+{
+	return degrees / 180 * PI;
+}
+
+long double radian_into_degrees(long double radian)
+{
+	return radian * 180 / PI;
+}
+
+struct Point
+{
+	long double x;
+	long double y;
+
+
+	Point(long double x_, long double y_)
+	{
+		x = x_;
+		y = y_;
+	}
+
+	Point()
+	{
+
+	}
+
+	void scan()
+	{
+		cin >> x >> y;
+	}
+
+	bool operator ==(const Point& other) const
+	{
+		return ((x == other.x) && (y == other.y));
+	}
+
+	bool operator !=(const Point& other) const
+	{
+		return !(*this == other);
+	}
+
+	Point operator +(const Point& other) const
+	{
+		return Point(x + other.x, y + other.y);
+	}
+
+	void operator +=(const Point& other)
+	{
+		*this = *this + other;
+	}
+
+	Point operator -(const Point& other) const
+	{
+		return Point(x - other.x, y - other.y);
+	}
+
+	void operator -=(const Point& other)
+	{
+		*this = *this - other;
+	}
+
+	Point operator *(const long double a) const
+	{
+		return Point(x * a, y * a);
+	}
+
+	void operator *=(const long double a)
+	{
+		*this = *this * a;
+	}
+
+	Point operator /(long double a) const
+	{
+		return Point(x / a, y / a);
+	}
+
+	void operator /=(const long double a)
+	{
+		*this = *this / a;
+	}
+
+
+	void operator =(const Point& other)
+	{
+		x = other.x;
+		y = other.y;
+	}
+
+};
+
+struct segment
+{
+	Point segment_begin;
+	Point segment_end;
+	long double length2;
+
+	segment(Point a, Point b)
+	{
+		segment_begin = a;
+		segment_end = b;
+		length2 = (b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y);
+	}
+
+	segment()
+	{
+
+	}
+
+	long double y_from_x(long double x)
+	{
+		if (segment_end.y == segment_begin.y)
+		{
+			return segment_end.y;
+		}
+		else
+		{
+			return  (segment_end.y - segment_begin.y) * (x - segment_begin.x) / (segment_end.x - segment_begin.x) + segment_begin.y;
+		}
+	}
+};
+
+
+int main()
+{
+	long long n, d;
+
+	cin >> n >> d;
+
+	vector <Point> P1(n);
+	vector <Point> P2(n);
+
+	for (int i = 0; i < n; i++)
+	{
+		P2[i].x = i + 1;
+		cin >> P2[i].y;
+		P2[i].y -= d;
+	}
+
+
+	for (int i = 0; i < n; i++)
+	{
+		P1[i].x = i + 1;
+		cin >> P1[i].y;
+
+		if (P1[i].y > P2[i].y)
+		{
+			cout << -1;
+			return 0;
+		}
+	}
+
+	vector <long double> parents(n);
+	parents[0] = -1;
+	vector <long double> dp(n, 1e18);
+	dp[0] = 0;
+	
+	for (int i = 1; i < n; i++)
+	{
+		for (int j = 0; j < i; j++)
+		{
+			segment path = segment(P1[j], P1[i]);
+
+			bool flag = 0;
+
+			int k = j + 1;
+			while (P1[k].x < P1[i].x)
+			{
+				if (path.y_from_x(P1[k].x) < P1[k].y)
+				{
+					flag = true;
+					break;
+				}
+
+				k++;
+			}
+
+			k = j + 1;
+			while (P2[k].x < P1[i].x)
+			{
+				if (path.y_from_x(P2[k].x) > P2[k].y)
+				{
+					flag = true;
+					break;
+				}
+
+				k++;
+			}
+			
+			if (flag)
+			{
+				continue;
+			}	
+
+			if (dp[j] + path.length2 <= dp[i])
+			{
+				dp[i] = dp[j] + path.length2;
+				parents[i] = j;
+			}
+
+		}
+	}
+
+	long long k = n - 1, counter = 0;
+	while (k != 0)
+	{
+		k = parents[k];
+		counter++;
+	}
+
+	cout << dp[n - 1] << ' ' << counter;
+
+
+}
